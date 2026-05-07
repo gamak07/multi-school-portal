@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MultiPortalSchoolSys.Data;
 
@@ -11,9 +12,11 @@ using MultiPortalSchoolSys.Data;
 namespace MultiPortalSchoolSys.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260507150711_AddAcademics")]
+    partial class AddAcademics
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -240,94 +243,6 @@ namespace MultiPortalSchoolSys.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.CbtExam", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("DurationMinutes")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("SubjectId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<decimal>("TotalMarks")
-                        .HasColumnType("decimal(5,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SubjectId");
-
-                    b.ToTable("CbtExams");
-                });
-
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.CbtQuestion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CorrectOption")
-                        .IsRequired()
-                        .HasMaxLength(1)
-                        .HasColumnType("nvarchar(1)");
-
-                    b.Property<int>("ExamId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Marks")
-                        .HasColumnType("decimal(5,2)");
-
-                    b.Property<string>("OptionA")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("OptionB")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("OptionC")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("OptionD")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("QuestionText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ExamId");
-
-                    b.ToTable("CbtQuestions");
-                });
-
             modelBuilder.Entity("MultiPortalSchoolSys.Models.ClassRoom", b =>
                 {
                     b.Property<int>("Id")
@@ -349,38 +264,6 @@ namespace MultiPortalSchoolSys.Migrations
                     b.HasIndex("FormTeacherId");
 
                     b.ToTable("ClassRooms");
-                });
-
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.FeeInvoice", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsPaid")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("FeeInvoices");
                 });
 
             modelBuilder.Entity("MultiPortalSchoolSys.Models.Parent", b =>
@@ -408,75 +291,6 @@ namespace MultiPortalSchoolSys.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Parents");
-                });
-
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.PaymentReceipt", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("AmountPaid")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("FeeInvoiceId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ParentId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("ReferenceNo")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FeeInvoiceId");
-
-                    b.HasIndex("ParentId");
-
-                    b.ToTable("PaymentReceipts");
-                });
-
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.StaffAttendance", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Remarks")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("TeacherId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TeacherId");
-
-                    b.ToTable("StaffAttendances");
                 });
 
             modelBuilder.Entity("MultiPortalSchoolSys.Models.Student", b =>
@@ -516,41 +330,6 @@ namespace MultiPortalSchoolSys.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Students");
-                });
-
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.StudentCbtAttempt", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("AutoSavedSubmitTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ExamId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal>("Score")
-                        .HasColumnType("decimal(5,2)");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ExamId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("StudentCbtAttempts");
                 });
 
             modelBuilder.Entity("MultiPortalSchoolSys.Models.StudentResult", b =>
@@ -713,28 +492,6 @@ namespace MultiPortalSchoolSys.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.CbtExam", b =>
-                {
-                    b.HasOne("MultiPortalSchoolSys.Models.Subject", "Subject")
-                        .WithMany()
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.CbtQuestion", b =>
-                {
-                    b.HasOne("MultiPortalSchoolSys.Models.CbtExam", "Exam")
-                        .WithMany("Questions")
-                        .HasForeignKey("ExamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Exam");
-                });
-
             modelBuilder.Entity("MultiPortalSchoolSys.Models.ClassRoom", b =>
                 {
                     b.HasOne("MultiPortalSchoolSys.Models.Teacher", "FormTeacher")
@@ -742,17 +499,6 @@ namespace MultiPortalSchoolSys.Migrations
                         .HasForeignKey("FormTeacherId");
 
                     b.Navigation("FormTeacher");
-                });
-
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.FeeInvoice", b =>
-                {
-                    b.HasOne("MultiPortalSchoolSys.Models.Student", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("MultiPortalSchoolSys.Models.Parent", b =>
@@ -764,36 +510,6 @@ namespace MultiPortalSchoolSys.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.PaymentReceipt", b =>
-                {
-                    b.HasOne("MultiPortalSchoolSys.Models.FeeInvoice", "FeeInvoice")
-                        .WithMany("Payments")
-                        .HasForeignKey("FeeInvoiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MultiPortalSchoolSys.Models.Parent", "Parent")
-                        .WithMany()
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FeeInvoice");
-
-                    b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.StaffAttendance", b =>
-                {
-                    b.HasOne("MultiPortalSchoolSys.Models.Teacher", "Teacher")
-                        .WithMany()
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("MultiPortalSchoolSys.Models.Student", b =>
@@ -817,25 +533,6 @@ namespace MultiPortalSchoolSys.Migrations
                     b.Navigation("Parent");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.StudentCbtAttempt", b =>
-                {
-                    b.HasOne("MultiPortalSchoolSys.Models.CbtExam", "Exam")
-                        .WithMany()
-                        .HasForeignKey("ExamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MultiPortalSchoolSys.Models.Student", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Exam");
-
-                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("MultiPortalSchoolSys.Models.StudentResult", b =>
@@ -868,19 +565,9 @@ namespace MultiPortalSchoolSys.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.CbtExam", b =>
-                {
-                    b.Navigation("Questions");
-                });
-
             modelBuilder.Entity("MultiPortalSchoolSys.Models.ClassRoom", b =>
                 {
                     b.Navigation("Students");
-                });
-
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.FeeInvoice", b =>
-                {
-                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("MultiPortalSchoolSys.Models.Parent", b =>

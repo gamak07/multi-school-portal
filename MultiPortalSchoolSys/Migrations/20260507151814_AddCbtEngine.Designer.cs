@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MultiPortalSchoolSys.Data;
 
@@ -11,9 +12,11 @@ using MultiPortalSchoolSys.Data;
 namespace MultiPortalSchoolSys.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260507151814_AddCbtEngine")]
+    partial class AddCbtEngine
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -351,38 +354,6 @@ namespace MultiPortalSchoolSys.Migrations
                     b.ToTable("ClassRooms");
                 });
 
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.FeeInvoice", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsPaid")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("FeeInvoices");
-                });
-
             modelBuilder.Entity("MultiPortalSchoolSys.Models.Parent", b =>
                 {
                     b.Property<int>("Id")
@@ -408,75 +379,6 @@ namespace MultiPortalSchoolSys.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Parents");
-                });
-
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.PaymentReceipt", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("AmountPaid")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("FeeInvoiceId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ParentId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("ReferenceNo")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FeeInvoiceId");
-
-                    b.HasIndex("ParentId");
-
-                    b.ToTable("PaymentReceipts");
-                });
-
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.StaffAttendance", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Remarks")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("TeacherId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TeacherId");
-
-                    b.ToTable("StaffAttendances");
                 });
 
             modelBuilder.Entity("MultiPortalSchoolSys.Models.Student", b =>
@@ -744,17 +646,6 @@ namespace MultiPortalSchoolSys.Migrations
                     b.Navigation("FormTeacher");
                 });
 
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.FeeInvoice", b =>
-                {
-                    b.HasOne("MultiPortalSchoolSys.Models.Student", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Student");
-                });
-
             modelBuilder.Entity("MultiPortalSchoolSys.Models.Parent", b =>
                 {
                     b.HasOne("MultiPortalSchoolSys.Models.ApplicationUser", "User")
@@ -764,36 +655,6 @@ namespace MultiPortalSchoolSys.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.PaymentReceipt", b =>
-                {
-                    b.HasOne("MultiPortalSchoolSys.Models.FeeInvoice", "FeeInvoice")
-                        .WithMany("Payments")
-                        .HasForeignKey("FeeInvoiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MultiPortalSchoolSys.Models.Parent", "Parent")
-                        .WithMany()
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FeeInvoice");
-
-                    b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.StaffAttendance", b =>
-                {
-                    b.HasOne("MultiPortalSchoolSys.Models.Teacher", "Teacher")
-                        .WithMany()
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("MultiPortalSchoolSys.Models.Student", b =>
@@ -876,11 +737,6 @@ namespace MultiPortalSchoolSys.Migrations
             modelBuilder.Entity("MultiPortalSchoolSys.Models.ClassRoom", b =>
                 {
                     b.Navigation("Students");
-                });
-
-            modelBuilder.Entity("MultiPortalSchoolSys.Models.FeeInvoice", b =>
-                {
-                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("MultiPortalSchoolSys.Models.Parent", b =>
