@@ -22,6 +22,9 @@ namespace MultiPortalSchoolSys.Models
         public DateTime DueDate { get; set; }
 
         public bool IsPaid { get; set; } = false;
+        [Required]
+        [MaxLength(50)]
+        public string SessionTerm { get; set; } = string.Empty; // e.g., "2025/2026 Term 1"
 
         // Navigation Property: A single invoice could have multiple partial payments
         public ICollection<PaymentReceipt> Payments { get; set; } = new List<PaymentReceipt>();

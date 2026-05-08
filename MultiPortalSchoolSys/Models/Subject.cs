@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MultiPortalSchoolSys.Models
 {
@@ -16,5 +17,12 @@ namespace MultiPortalSchoolSys.Models
         public string Code { get; set; } = string.Empty; // e.g., "MTH101"
 
         public bool IsActive { get; set; } = true;
+        public int? ClassId { get; set; }
+        [ForeignKey("ClassId")]
+        public ClassRoom? ClassRoom { get; set; }
+
+        public int? TeacherId { get; set; }
+        [ForeignKey("TeacherId")]
+        public Teacher? Teacher { get; set; }
     }
 }

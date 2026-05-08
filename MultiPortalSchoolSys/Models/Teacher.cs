@@ -19,10 +19,14 @@ namespace MultiPortalSchoolSys.Models
         public string StaffNo { get; set; } = string.Empty;
 
         public DateTime HireDate { get; set; }
-        
+
         [Column(TypeName = "decimal(18,2)")]
         public decimal BasicSalary { get; set; }
 
         public string? Qualifications { get; set; }
+
+        // public int? DepartmentId { get; set; }
+
+        public ICollection<Subject> Subjects { get; set; } = new List<Subject>();
     }
 }

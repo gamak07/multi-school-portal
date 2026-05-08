@@ -24,15 +24,30 @@ namespace MultiPortalSchoolSys.Data
         public DbSet<StaffAttendance> StaffAttendances { get; set; }
         public DbSet<FeeInvoice> FeeInvoices { get; set; }
         public DbSet<PaymentReceipt> PaymentReceipts { get; set; }
+        public DbSet<StudentAnswer> StudentAnswers { get; set; }
+        public DbSet<StudentAttendance> StudentAttendances { get; set; }
+        public DbSet<Payroll> Payrolls { get; set; }
+        public DbSet<Material> Materials { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            // Optional: Configure strict delete behavior so deleting a parent doesn't wipe out the student
             builder.Entity<Student>()
                 .HasOne(s => s.Parent)
                 .WithMany(p => p.Children)
                 .HasForeignKey(s => s.ParentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<StudentAnswer>()
+                .HasOne(sa => sa.Exam)
+                .WithMany()
+                .HasForeignKey(sa => sa.ExamId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<StudentAnswer>()
+                .HasOne(sa => sa.Question)
+                .WithMany()
+                .HasForeignKey(sa => sa.QuestionId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

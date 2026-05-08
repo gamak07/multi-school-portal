@@ -17,6 +17,10 @@ namespace MultiPortalSchoolSys.Models
         [ForeignKey("FormTeacherId")]
         public Teacher? FormTeacher { get; set; }
 
+        [MaxLength(10)]
+        public string Arm { get; set; } = string.Empty; // e.g., "A", "B", "Science"
+
+        // public int? SessionId { get; set; } 
         // Navigation Property: All students in this class
         public ICollection<Student> Students { get; set; } = new List<Student>();
     }
