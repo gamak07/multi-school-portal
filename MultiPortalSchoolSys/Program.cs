@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using MultiPortalSchoolSys.Data;
 using Microsoft.EntityFrameworkCore;
+using MultiPortalSchoolSys.Repositories;
+using MultiPortalSchoolSys.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +12,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 

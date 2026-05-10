@@ -37,5 +37,7 @@ namespace MultiPortalSchoolSys.Models
 
         [MaxLength(100)]
         public string Remark { get; set; } = string.Empty; // e.g., "Excellent", "Needs Improvement"
+        
+        public bool IsPublished { get; set; } = false;
     }
 }

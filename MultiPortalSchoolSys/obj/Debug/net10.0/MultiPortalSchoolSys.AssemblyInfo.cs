@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MultiPortalSchoolSys")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1e6d3bf26602bd853e08809fab11dce1aa96e456")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a58e403e746a7a63fc21d01df49679eb2ea5bbe1")]
 [assembly: System.Reflection.AssemblyProductAttribute("MultiPortalSchoolSys")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MultiPortalSchoolSys")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
