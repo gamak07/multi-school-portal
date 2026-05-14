@@ -15,5 +15,6 @@ namespace MultiPortalSchoolSys.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsActive { get; set; } = true;
+        public bool IsFirstLogin { get; set; } = true;
     }
 }

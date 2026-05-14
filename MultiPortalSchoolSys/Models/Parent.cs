@@ -10,7 +10,7 @@ namespace MultiPortalSchoolSys.Models
 
         // Links to their Identity Login
         [Required]
-        public string UserId { get; set; } = string.Empty;
+        public string? UserId { get; set; } = string.Empty;
         [ForeignKey("UserId")]
         public ApplicationUser? User { get; set; }
 
