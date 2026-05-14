@@ -1,0 +1,38 @@
+@{
+    ViewData["Title"] = "Access Denied";
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+}
+
+<div class="card auth-card mx-auto text-center">
+    <div class="card-body p-5">
+        <div class="mb-4">
+            <div class="display-1 text-danger mb-3">
+                <i class="bi bi-shield-lock-fill"></i>
+            </div>
+            <h2 class="fw-bold" style="color: var(--school-primary)">Access Restricted</h2>
+            <hr class="mx-auto w-25 text-secondary opacity-50">
+        </div>
+
+        <div class="mb-4">
+            <p class="text-secondary">
+                You do not have the required permissions to view this page or perform this action.
+            </p>
+            <p class="small text-muted">
+                If you believe this is an error, please ensure you are logged into the correct account or contact the school's IT administrator.
+            </p>
+        </div>
+
+        <div class="d-grid gap-2">
+            <a href="/" class="btn btn-school btn-lg fs-6">
+                Return to My Dashboard
+            </a>
+            
+            <a asp-controller="Home" asp-action="Index" class="btn btn-link text-decoration-none text-secondary small">
+                Back to Homepage
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    }

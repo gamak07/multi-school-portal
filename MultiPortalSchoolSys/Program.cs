@@ -4,6 +4,8 @@ using MultiPortalSchoolSys.Data;
 using MultiPortalSchoolSys.Models;
 using MultiPortalSchoolSys.Repositories;
 using MultiPortalSchoolSys.Repositories.Interfaces;
+using MultiPortalSchoolSys.Services;
+using MultiPortalSchoolSys.Services.Interfaces;
 using MultiPortalSchoolSys.UnitOfWork;
 using MultiPortalSchoolSys.UnitOfWork.Interfaces;
 
@@ -12,11 +14,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
- 
+
     if (builder.Environment.IsDevelopment())
     {
-        options.EnableDetailedErrors();       
-        options.EnableSensitiveDataLogging(); 
+        options.EnableDetailedErrors();
+        options.EnableSensitiveDataLogging();
     }
 });
 
@@ -34,10 +36,10 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath       = "/Account/Login";
-    options.LogoutPath      = "/Account/Logout";
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
     options.AccessDeniedPath = "/Account/AccessDenied";
-    options.ExpireTimeSpan  = TimeSpan.FromMinutes(30);
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
     options.SlidingExpiration = true;
 });
 
@@ -48,6 +50,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // 4. SERVICES  ← next phase registrations go here
 // Example:
 //   builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 //   builder.Services.AddScoped<IResultService,  ResultService>();
 // =========================================================================
 

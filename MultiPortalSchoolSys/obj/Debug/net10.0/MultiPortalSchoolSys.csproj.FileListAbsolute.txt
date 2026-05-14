@@ -21,7 +21,6 @@ C:\Users\USER\Documents\Multi-Portal School Management System\MultiPortalSchoolS
 C:\Users\USER\Documents\Multi-Portal School Management System\MultiPortalSchoolSys\obj\Debug\net10.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Users\USER\Documents\Multi-Portal School Management System\MultiPortalSchoolSys\obj\Debug\net10.0\scopedcss\bundle\MultiPortalSchoolSys.styles.css
 C:\Users\USER\Documents\Multi-Portal School Management System\MultiPortalSchoolSys\obj\Debug\net10.0\scopedcss\projectbundle\MultiPortalSchoolSys.bundle.scp.css
-C:\Users\USER\Documents\Multi-Portal School Management System\MultiPortalSchoolSys\obj\Debug\net10.0\compressed\iqkue4j4n9-{0}-b9sayid5wm-b9sayid5wm.gz
 C:\Users\USER\Documents\Multi-Portal School Management System\MultiPortalSchoolSys\obj\Debug\net10.0\compressed\mg31hh3odi-{0}-61n19gt1b8-61n19gt1b8.gz
 C:\Users\USER\Documents\Multi-Portal School Management System\MultiPortalSchoolSys\obj\Debug\net10.0\compressed\wl5o8woxyo-{0}-xtxxf3hu2r-xtxxf3hu2r.gz
 C:\Users\USER\Documents\Multi-Portal School Management System\MultiPortalSchoolSys\obj\Debug\net10.0\compressed\h97ijnzydf-{0}-bqjiyaj88i-bqjiyaj88i.gz
@@ -357,3 +356,4 @@ C:\Users\USER\Documents\Multi-Portal School Management System\MultiPortalSchoolS
 C:\Users\USER\Documents\Multi-Portal School Management System\MultiPortalSchoolSys\obj\Debug\net10.0\compressed\yfc7ypekbg-{0}-mlv21k5csn-mlv21k5csn.gz
 C:\Users\USER\Documents\Multi-Portal School Management System\MultiPortalSchoolSys\obj\Debug\net10.0\MultiPor.4AC55025.Up2Date
 C:\Users\USER\Documents\Multi-Portal School Management System\MultiPortalSchoolSys\obj\Debug\net10.0\MultiPortalSchoolSys.sourcelink.json
+C:\Users\USER\Documents\Multi-Portal School Management System\MultiPortalSchoolSys\obj\Debug\net10.0\compressed\iqkue4j4n9-{0}-x8m2l91wc9-x8m2l91wc9.gz

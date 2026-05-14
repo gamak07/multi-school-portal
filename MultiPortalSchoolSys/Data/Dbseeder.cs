@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MultiPortalSchoolSys.Data;
 using MultiPortalSchoolSys.Models;
 
 namespace MultiPortalSchoolSys.Data;
@@ -12,21 +13,19 @@ public static class DbSeeder
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-        // Apply any pending migrations automatically on startup
         await context.Database.MigrateAsync();
 
         await SeedRolesAsync(roleManager);
         await SeedAdminAsync(userManager);
         await SeedClassRoomsAsync(context);
-        await SeedTeacherAsync(context, userManager);
+        await SeedTeacherAsync(context);
         await SeedSubjectsAsync(context);
-        await SeedParentAsync(context, userManager);
+        await SeedParentAsync(context);
         await SeedStudentsAsync(context);
     }
 
     // =========================================================================
     // STEP 1 — ROLES
-    // Must exist before ANY user can be assigned a role.
     // =========================================================================
     private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
     {
@@ -44,8 +43,9 @@ public static class DbSeeder
 
     // =========================================================================
     // STEP 2 — ADMIN USER
-    // Root user. Not linked to a Teacher/Parent/Student profile.
-    // Change the password in appsettings before deploying to production.
+    // The ONLY account the seeder creates with a login.
+    // IsFirstLogin = false — deployment password is intentional and known.
+    // All other accounts are provisioned by Admin through the portal.
     // =========================================================================
     private static async Task SeedAdminAsync(UserManager<ApplicationUser> userManager)
     {
@@ -56,12 +56,13 @@ public static class DbSeeder
 
         var admin = new ApplicationUser
         {
-            UserName  = adminEmail,
-            Email     = adminEmail,
-            FirstName = "System",
-            LastName  = "Admin",
-            IsActive  = true,
-            EmailConfirmed = true
+            UserName       = adminEmail,
+            Email          = adminEmail,
+            FirstName      = "System",
+            LastName       = "Admin",
+            IsActive       = true,
+            EmailConfirmed = true,
+            IsFirstLogin   = false  // exempt from forced password change
         };
 
         var result = await userManager.CreateAsync(admin, "Admin@12345");
@@ -80,7 +81,6 @@ public static class DbSeeder
 
     // =========================================================================
     // STEP 3 — CLASSROOMS
-    // Must exist before Teachers (FormTeacher FK) and Students (ClassRoom FK).
     // =========================================================================
     private static async Task SeedClassRoomsAsync(ApplicationDbContext context)
     {
@@ -100,45 +100,27 @@ public static class DbSeeder
     }
 
     // =========================================================================
-    // STEP 4 — TEACHER
-    // Creates ApplicationUser first, then the Teacher profile,
-    // then assigns the Teacher as FormTeacher of JSS 1A.
+    // STEP 4 — TEACHER PROFILE (no login account)
+    // DESIGN FIX: Only the profile record is created. UserId = null.
+    // Admin provisions the login through the portal — triggers welcome email.
     // =========================================================================
-    private static async Task SeedTeacherAsync(
-        ApplicationDbContext context,
-        UserManager<ApplicationUser> userManager)
+    private static async Task SeedTeacherAsync(ApplicationDbContext context)
     {
-        const string teacherEmail = "john.adeyemi@schoolms.com";
-
-        if (await userManager.FindByEmailAsync(teacherEmail) is not null)
+        if (await context.Teachers.AnyAsync())
             return;
 
-        // 1. Create the Identity login
-        var teacherUser = new ApplicationUser
-        {
-            UserName  = teacherEmail,
-            Email     = teacherEmail,
-            FirstName = "John",
-            LastName  = "Adeyemi",
-            IsActive  = true,
-            EmailConfirmed = true
-        };
+        var jss1 = await context.ClassRooms
+            .FirstOrDefaultAsync(c => c.Name == "JSS 1" && c.Arm == "A");
 
-        var result = await userManager.CreateAsync(teacherUser, "Teacher@12345");
-
-        if (!result.Succeeded)
+        if (jss1 is null)
         {
-            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            Console.WriteLine($"[Seeder] ERROR creating teacher user: {errors}");
+            Console.WriteLine("[Seeder] SKIPPED teacher — ClassRoom not found.");
             return;
         }
 
-        await userManager.AddToRoleAsync(teacherUser, "Teacher");
-
-        // 2. Create the Teacher profile record
         var teacher = new Teacher
         {
-            UserId         = teacherUser.Id,
+            UserId         = null,  // login provisioned by Admin later
             StaffNo        = "TCH-001",
             HireDate       = new DateTime(2020, 9, 1),
             BasicSalary    = 250_000.00m,
@@ -148,23 +130,14 @@ public static class DbSeeder
         await context.Teachers.AddAsync(teacher);
         await context.SaveChangesAsync();
 
-        // 3. Assign as FormTeacher of JSS 1A
-        var jss1 = await context.ClassRooms
-            .FirstOrDefaultAsync(c => c.Name == "JSS 1" && c.Arm == "A");
+        jss1.FormTeacherId = teacher.Id;
+        await context.SaveChangesAsync();
 
-        if (jss1 is not null)
-        {
-            jss1.FormTeacherId = teacher.Id;
-            await context.SaveChangesAsync();
-        }
-
-        Console.WriteLine($"[Seeder] Teacher created: {teacherEmail}");
+        Console.WriteLine("[Seeder] Teacher profile seeded: TCH-001 (no login yet)");
     }
 
     // =========================================================================
     // STEP 5 — SUBJECTS
-    // Linked to JSS 1A and the seeded Teacher.
-    // Must run after SeedTeacherAsync and SeedClassRoomsAsync.
     // =========================================================================
     private static async Task SeedSubjectsAsync(ApplicationDbContext context)
     {
@@ -185,9 +158,9 @@ public static class DbSeeder
 
         var subjects = new List<Subject>
         {
-            new() { Name = "Mathematics",     Code = "MTH101", ClassId = jss1.Id, TeacherId = teacher.Id, IsActive = true },
+            new() { Name = "Mathematics",      Code = "MTH101", ClassId = jss1.Id, TeacherId = teacher.Id, IsActive = true },
             new() { Name = "English Language", Code = "ENG101", ClassId = jss1.Id, TeacherId = teacher.Id, IsActive = true },
-            new() { Name = "Basic Science",   Code = "BSC101", ClassId = jss1.Id, TeacherId = teacher.Id, IsActive = true }
+            new() { Name = "Basic Science",    Code = "BSC101", ClassId = jss1.Id, TeacherId = teacher.Id, IsActive = true }
         };
 
         await context.Subjects.AddRangeAsync(subjects);
@@ -196,70 +169,36 @@ public static class DbSeeder
     }
 
     // =========================================================================
-    // STEP 6 — PARENT
-    // Creates ApplicationUser first, then the Parent profile.
-    // Must exist before Students (ParentId FK).
+    // STEP 6 — PARENT PROFILE (no login account)
+    // DESIGN FIX: Only the profile record is created. UserId = null.
     // =========================================================================
-    private static async Task SeedParentAsync(
-        ApplicationDbContext context,
-        UserManager<ApplicationUser> userManager)
+    private static async Task SeedParentAsync(ApplicationDbContext context)
     {
-        const string parentEmail = "emeka.okafor@schoolms.com";
-
-        if (await userManager.FindByEmailAsync(parentEmail) is not null)
+        if (await context.Parents.AnyAsync())
             return;
 
-        // 1. Create the Identity login
-        var parentUser = new ApplicationUser
-        {
-            UserName  = parentEmail,
-            Email     = parentEmail,
-            FirstName = "Emeka",
-            LastName  = "Okafor",
-            IsActive  = true,
-            EmailConfirmed = true
-        };
-
-        var result = await userManager.CreateAsync(parentUser, "Parent@12345");
-
-        if (!result.Succeeded)
-        {
-            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            Console.WriteLine($"[Seeder] ERROR creating parent user: {errors}");
-            return;
-        }
-
-        await userManager.AddToRoleAsync(parentUser, "Parent");
-
-        // 2. Create the Parent profile record
         var parent = new Parent
         {
-            UserId      = parentUser.Id,
+            UserId      = null,  // login provisioned by Admin later
             Occupation  = "Engineer",
             HomeAddress = "14 Adeyemo Alakija Street, Victoria Island, Lagos"
         };
 
         await context.Parents.AddAsync(parent);
         await context.SaveChangesAsync();
-        Console.WriteLine($"[Seeder] Parent created: {parentEmail}");
+        Console.WriteLine("[Seeder] Parent profile seeded (no login yet)");
     }
 
     // =========================================================================
-    // STEP 7 — STUDENTS
-    // Each student needs an ApplicationUser (for portal login),
-    // a Parent (FK), and a ClassRoom (FK).
-    // Must run last — depends on all previous steps.
+    // STEP 7 — STUDENT PROFILES (no login accounts)
     // =========================================================================
     private static async Task SeedStudentsAsync(ApplicationDbContext context)
     {
         if (await context.Students.AnyAsync())
             return;
 
-        var jss1 = await context.ClassRooms
-            .FirstOrDefaultAsync(c => c.Name == "JSS 1" && c.Arm == "A");
-
-        var parent = await context.Parents
-            .FirstOrDefaultAsync();
+        var jss1   = await context.ClassRooms.FirstOrDefaultAsync(c => c.Name == "JSS 1" && c.Arm == "A");
+        var parent = await context.Parents.FirstOrDefaultAsync();
 
         if (jss1 is null || parent is null)
         {
@@ -271,24 +210,26 @@ public static class DbSeeder
         {
             new()
             {
-                ParentId        = parent.Id,
-                ClassRoomId     = jss1.Id,
-                AdmissionNo     = "STU-2025-001",
-                DateOfBirth     = new DateTime(2012, 3, 15),
-                EnrollmentDate  = new DateTime(2025, 9, 1)
+                UserId         = null,  // login provisioned by Admin later
+                ParentId       = parent.Id,
+                ClassRoomId    = jss1.Id,
+                AdmissionNo    = "STU-2025-001",
+                DateOfBirth    = new DateTime(2012, 3, 15),
+                EnrollmentDate = new DateTime(2025, 9, 1)
             },
             new()
             {
-                ParentId        = parent.Id,
-                ClassRoomId     = jss1.Id,
-                AdmissionNo     = "STU-2025-002",
-                DateOfBirth     = new DateTime(2013, 7, 22),
-                EnrollmentDate  = new DateTime(2025, 9, 1)
+                UserId         = null,
+                ParentId       = parent.Id,
+                ClassRoomId    = jss1.Id,
+                AdmissionNo    = "STU-2025-002",
+                DateOfBirth    = new DateTime(2013, 7, 22),
+                EnrollmentDate = new DateTime(2025, 9, 1)
             }
         };
 
         await context.Students.AddRangeAsync(students);
         await context.SaveChangesAsync();
-        Console.WriteLine($"[Seeder] Students seeded: {students.Count} records");
+        Console.WriteLine($"[Seeder] Student profiles seeded: {students.Count} records (no logins yet)");
     }
 }
