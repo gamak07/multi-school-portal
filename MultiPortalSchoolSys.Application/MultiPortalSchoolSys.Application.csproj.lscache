@@ -54,6 +54,53 @@ TemporaryDependencyNodeTargetIdentifier=net10.0
 /warnaserror+:NU1605,SYSLIB0011
 
 [sourceFiles]
+Common/
+ PaginatedList.cs
+ Result.cs
+DTOs/
+ AcademicTermDto.cs
+ AttendanceDto.cs
+ CbtAttemptDto.cs
+ CbtQuestionDto.cs
+ ChangePasswordDto.cs
+ CreateAcademicTermDto.cs
+ CreateCbtExamDto.cs
+ CreateFeeInvoiceDto.cs
+ CreateLeaveRequestDto.cs
+ CreateMaterialDto.cs
+ CreateParentDto.cs
+ CreatePrintableExamDto.cs
+ CreateSanctionDto.cs
+ CreateSchoolEventDto.cs
+ CreateStudentDto.cs
+ CreateTeacherDto.cs
+ CreateTheoryExamDto.cs
+ EnterResultDto.cs
+ ExamDto.cs
+ FeeInvoiceDto.cs
+ LeaveRequestDto.cs
+ LoginDto.cs
+ LoginResponseDto.cs
+ MaterialDto.cs
+ ParentDto.cs
+ PaymentReceiptDto.cs
+ PayrollDto.cs
+ PrintableExamDto.cs
+ ProvisionAccountDto.cs
+ ProvisionAccountResponseDto.cs
+ RecordPaymentDto.cs
+ ResultDto.cs
+ SanctionDto.cs
+ SaveAnswerDto.cs
+ SchoolEventDto.cs
+ StudentDto.cs
+ TakeAttendanceDto.cs
+ TeacherDto.cs
+ TheoryExamDto.cs
+ TheoryQuestionDto.cs
+ UpdateParentDto.cs
+ UpdateStudentDto.cs
+ UpdateTeacherDto.cs
 Interfaces/
  IUnitOfWork.cs
  Repositories/
