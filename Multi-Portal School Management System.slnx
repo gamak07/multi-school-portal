@@ -1,3 +1,7 @@
 <Solution>
+  <Project Path="MultiPortalSchoolSys.Api/MultiPortalSchoolSys.Api.csproj" />
+  <Project Path="MultiPortalSchoolSys.Application/MultiPortalSchoolSys.Application.csproj" />
+  <Project Path="MultiPortalSchoolSys.Domain/MultiPortalSchoolSys.Domain.csproj" />
+  <Project Path="MultiPortalSchoolSys.Infrastructure/MultiPortalSchoolSys.Infrastructure.csproj" />
   <Project Path="MultiPortalSchoolSys/MultiPortalSchoolSys.csproj" />
 </Solution>
