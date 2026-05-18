@@ -12,6 +12,7 @@
           "Microsoft.EntityFrameworkCore": "10.0.8",
           "Microsoft.EntityFrameworkCore.Design": "10.0.8",
           "Microsoft.EntityFrameworkCore.SqlServer": "10.0.8",
+          "Microsoft.Extensions.DependencyInjection": "10.0.8",
           "MultiPortalSchoolSys.Application": "1.0.0",
           "MultiPortalSchoolSys.Domain": "1.0.0"
         },
