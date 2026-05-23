@@ -1,43 +1,5 @@
-// using MultiPortalSchoolSys.Domain.Common;
-// using System.ComponentModel.DataAnnotations;
-// using System.ComponentModel.DataAnnotations.Schema;
-
-// namespace MultiPortalSchoolSys.Domain.Entities.Assessment;
-
-// public class CbtQuestion : BaseEntity
-// {
-//     public int ExamId { get; set; }
-//     [ForeignKey("ExamId")]
-//     public CbtExam? Exam { get; set; }
-
-//     [Required]
-//     public string QuestionText { get; set; } = string.Empty;
-
-//     [Required]
-//     [MaxLength(500)]
-//     public string OptionA { get; set; } = string.Empty;
-
-//     [Required]
-//     [MaxLength(500)]
-//     public string OptionB { get; set; } = string.Empty;
-
-//     [Required]
-//     [MaxLength(500)]
-//     public string OptionC { get; set; } = string.Empty;
-
-//     [Required]
-//     [MaxLength(500)]
-//     public string OptionD { get; set; } = string.Empty;
-
-//     [Required]
-//     [MaxLength(1)]
-//     public string CorrectOption { get; set; } = string.Empty; // A, B, C, or D
-
-//     [Column(TypeName = "decimal(5,2)")]
-//     public decimal Marks { get; set; } = 1.0m;
-// }
-
 using MultiPortalSchoolSys.Domain.Common;
+using MultiPortalSchoolSys.Domain.Enums;
 
 namespace MultiPortalSchoolSys.Domain.Entities.Assessment;
 
@@ -45,39 +7,74 @@ public class CbtQuestion : BaseEntity
 {
     public int ExamId { get; private set; }
     public CbtExam? Exam { get; private set; }
-
+    public CbtQuestionType QuestionType { get; private set; }
     public string QuestionText { get; private set; } = string.Empty;
-    public string OptionA { get; private set; } = string.Empty;
-    public string OptionB { get; private set; } = string.Empty;
-    public string OptionC { get; private set; } = string.Empty;
-    public string OptionD { get; private set; } = string.Empty;
+    public string? OptionA { get; private set; }
+    public string? OptionB { get; private set; }
+    public string? OptionC { get; private set; }
+    public string? OptionD { get; private set; }
     public string CorrectOption { get; private set; } = string.Empty;
     public decimal Marks { get; private set; }
 
-    // EF Core requires a parameterless constructor for materialization
     private CbtQuestion() { }
 
-    public CbtQuestion(int examId, string questionText, string a, string b, string c, string d, string correctOption, decimal marks)
+    public CbtQuestion(int examId, CbtQuestionType questionType, string questionText, string? a, string? b, string? c, string? d, string correctOption, decimal marks)
     {
         if (examId <= 0) throw new ArgumentException("Invalid exam ID.", nameof(examId));
         ExamId = examId;
-        UpdateDetails(questionText, a, b, c, d, correctOption, marks);
+        UpdateDetails(questionType, questionText, a, b, c, d, correctOption, marks);
     }
 
-    public void UpdateDetails(string questionText, string a, string b, string c, string d, string correctOption, decimal marks)
+    // FIXED: Parameter types updated to string? to match the constructor and prevent compiler errors
+    public void UpdateDetails(CbtQuestionType questionType, string questionText, string? a, string? b, string? c, string? d, string correctOption, decimal marks)
     {
-        if (string.IsNullOrWhiteSpace(questionText)) throw new ArgumentException("Question text cannot be empty.");
-        if (string.IsNullOrWhiteSpace(a) || string.IsNullOrWhiteSpace(b) || string.IsNullOrWhiteSpace(c) || string.IsNullOrWhiteSpace(d))
-            throw new ArgumentException("All options must be provided and cannot be empty.");
-        if (!new[] { "A", "B", "C", "D" }.Contains(correctOption.ToUpper())) throw new ArgumentException("Invalid correct option.");
-        if (marks <= 0) throw new ArgumentException("Marks must be greater than zero.");
+        if (string.IsNullOrWhiteSpace(questionText)) throw new ArgumentException("Question text cannot be empty.", nameof(questionText));
+        if (string.IsNullOrWhiteSpace(correctOption)) throw new ArgumentException("Correct option/answer cannot be empty.", nameof(correctOption));
+        if (marks <= 0) throw new ArgumentException("Marks must be greater than zero.", nameof(marks));
 
-        QuestionText = questionText;
-        OptionA = a;
-        OptionB = b;
-        OptionC = c;
-        OptionD = d;
-        CorrectOption = correctOption.ToUpper();
+        // Format-specific evaluation routing
+        if (questionType == CbtQuestionType.Structural)
+        {
+            // Cleanly isolate fill-in-the-gap questions: options are wiped out safely
+            OptionA = null;
+            OptionB = null;
+            OptionC = null;
+            OptionD = null;
+            CorrectOption = correctOption.Trim();
+        }
+        else
+        {
+            // MCQ and Checkbox formats strictly demand all options are provided
+            if (string.IsNullOrWhiteSpace(a) || string.IsNullOrWhiteSpace(b) || string.IsNullOrWhiteSpace(c) || string.IsNullOrWhiteSpace(d))
+                throw new ArgumentException("All options (A, B, C, D) must be provided for multiple choice formats.");
+
+            OptionA = a.Trim();
+            OptionB = b.Trim();
+            OptionC = c.Trim();
+            OptionD = d.Trim();
+
+            var normalizedAnswer = correctOption.Trim().ToUpper().Replace(" ", "");
+
+            if (questionType == CbtQuestionType.SingleChoice)
+            {
+                if (!new[] { "A", "B", "C", "D" }.Contains(normalizedAnswer)) 
+                    throw new ArgumentException("Invalid correct option for single choice. Must be A, B, C, or D.", nameof(correctOption));
+            }
+            else if (questionType == CbtQuestionType.MultipleChoice)
+            {
+                // Validate that all tokens inside a multi-select checkbox string (e.g., "A,C") are authorized options
+                var selections = normalizedAnswer.Split(',');
+                foreach (var selection in selections)
+                {
+                    if (!new[] { "A", "B", "C", "D" }.Contains(selection))
+                        throw new ArgumentException($"Invalid selection option '{selection}' found in multi-choice answer list.", nameof(correctOption));
+                }
+            }
+
+            CorrectOption = normalizedAnswer;
+        }
+
+        QuestionType = questionType;
         Marks = marks;
     }
 }
