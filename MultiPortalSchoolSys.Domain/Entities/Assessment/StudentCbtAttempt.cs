@@ -1,6 +1,5 @@
 using MultiPortalSchoolSys.Domain.Common;
 using MultiPortalSchoolSys.Domain.Entities.People;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MultiPortalSchoolSys.Domain.Entities.Assessment;
 

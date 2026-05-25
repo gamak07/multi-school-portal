@@ -2,7 +2,7 @@ namespace MultiPortalSchoolSys.Domain.Enums;
 
 public enum AttendanceStatus
 {
-    Present,
-    Absent,
-    Late
+    Present = 1,
+    Absent = 2,
+    Late = 3
 }

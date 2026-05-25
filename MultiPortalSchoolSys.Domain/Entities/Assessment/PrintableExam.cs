@@ -1,66 +1,52 @@
 using MultiPortalSchoolSys.Domain.Common;
-
-
-
 using MultiPortalSchoolSys.Domain.Entities.Academic;
+using MultiPortalSchoolSys.Domain.Entities.Calendar;
 using MultiPortalSchoolSys.Domain.Entities.People;
 using MultiPortalSchoolSys.Domain.Enums;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MultiPortalSchoolSys.Domain.Entities.Assessment;
 
 public class PrintableExam : BaseEntity
 {
-
     private PrintableExam() { }
-    //     [Required]
-    //     [MaxLength(200)]
     public string Title { get; private set; } = string.Empty;
-
     public int SubjectId { get; private set; }
-    // [ForeignKey("SubjectId")]
     public Subject? Subject { get; private set; }
-
     public int CreatedByTeacherId { get; private set; }
-    // [ForeignKey("CreatedByTeacherId")]
     public Teacher? CreatedByTeacher { get; private set; }
-    // Path to the uploaded PDF/Word document
-    // [Required]
+    public int AcademicTermId { get; private set; }
+    public AcademicTerm? AcademicTerm { get; private set; }
     public string DocumentUrl { get; private set; } = string.Empty;
-
-    // [Required]
-    // [MaxLength(20)]
-    public string AcademicYear { get; private set; } = string.Empty;
-
-    public int Term { get; private set; }
-
     public ExamApprovalStatus ApprovalStatus { get; private set; } = ExamApprovalStatus.Draft;
     public string? ApprovalRemarks { get; private set; }
     public int? ApprovedByAdminId { get; private set; }
-    // [ForeignKey("ApprovedByAdminId")]
-    // public ApplicationUser? ApprovedByAdmin { get; set; }
     public DateTime? ApprovedAt { get; private set; }
 
-    public PrintableExam(string title, int subjectId, int createdByTeacherId, string documentUrl, string academicYear, int term)
+    public PrintableExam(string title, int subjectId, int createdByTeacherId, string documentUrl, int academicTermId)
     {
-        if (subjectId <= 0) throw new ArgumentException("Invalid subject ID.", nameof(subjectId));
+        if (createdByTeacherId <= 0) throw new ArgumentException("Invalid teacher ID.", nameof(createdByTeacherId));
 
-        UpdatePrintableExam(title, createdByTeacherId, documentUrl, academicYear, term);
-        SubjectId = subjectId;
+        CreatedByTeacherId = createdByTeacherId;
+        UpdatePrintableExam(title, documentUrl, academicTermId, subjectId);
     }
 
-    public void UpdatePrintableExam(string title, int createdByTeacherId, string documentUrl, string academicYear, int term)
+    public void UpdatePrintableExam(string title, string documentUrl, int academicTermId, int subjectId)
     {
         if (ApprovalStatus == ExamApprovalStatus.Approved)
         {
             throw new InvalidOperationException("Cannot update an approved exam. Please contact the administrator.");
         }
+
+        if (ApprovalStatus == ExamApprovalStatus.Submitted)
+        {
+            throw new InvalidOperationException("Cannot modify an exam that is currently pending administrative review.");
+        }
+
+        if (academicTermId <= 0) throw new ArgumentException("Invalid academic term ID.", nameof(academicTermId));
+        if (subjectId <= 0) throw new ArgumentException("Invalid subject ID.", nameof(subjectId));
         if (string.IsNullOrWhiteSpace(title)) throw new ArgumentException("Title cannot be empty.", nameof(title));
-        if (createdByTeacherId <= 0) throw new ArgumentException("Invalid teacher ID.", nameof(createdByTeacherId));
         if (string.IsNullOrWhiteSpace(documentUrl)) throw new ArgumentException("Document URL cannot be empty.", nameof(documentUrl));
-        if (string.IsNullOrWhiteSpace(academicYear)) throw new ArgumentException("Academic year cannot be empty.", nameof(academicYear));
-        if (term <= 0 || term > 3) throw new ArgumentException("Term must be between 1 and 3.", nameof(term));
+
 
         if (ApprovalStatus == ExamApprovalStatus.Rejected)
         {
@@ -70,19 +56,16 @@ public class PrintableExam : BaseEntity
             ApprovedAt = null;
         }
 
-        Title = title;
-        CreatedByTeacherId = createdByTeacherId;
-        DocumentUrl = documentUrl;
-        AcademicYear = academicYear;
-        Term = term;
+        Title = title.Trim();
+        DocumentUrl = documentUrl.Trim();
+        SubjectId = subjectId;
+        AcademicTermId = academicTermId;
     }
 
-    public void ApproveExam(int adminId, string remarks)
+    public void ApproveExam(int adminId, string? remarks = null)
     {
-        if (ApprovalStatus == ExamApprovalStatus.Approved)
-        {
-            throw new InvalidOperationException("Exam is already approved.");
-        }
+        EnsurePendingReview();
+        
         if (adminId <= 0) throw new ArgumentException("Invalid admin ID.", nameof(adminId));
 
         ApprovalStatus = ExamApprovalStatus.Approved;
@@ -93,10 +76,8 @@ public class PrintableExam : BaseEntity
 
     public void RejectExam(int adminId, string remarks)
     {
-        if (ApprovalStatus == ExamApprovalStatus.Rejected)
-    {
-        throw new InvalidOperationException("Exam is already rejected.");
-    }
+        EnsurePendingReview();
+       
         if (adminId <= 0) throw new ArgumentException("Invalid admin ID.", nameof(adminId));
 
         if (string.IsNullOrWhiteSpace(remarks)) throw new ArgumentException("Remarks cannot be empty when rejecting an exam.", nameof(remarks));
@@ -105,6 +86,12 @@ public class PrintableExam : BaseEntity
         ApprovedByAdminId = adminId;
         ApprovalRemarks = remarks;
         ApprovedAt = DateTime.UtcNow;
+    }
+
+    private void EnsurePendingReview()
+    {
+        if (ApprovalStatus != ExamApprovalStatus.Submitted)
+            throw new InvalidOperationException($"Action denied. This exam cannot be processed because its current status is {ApprovalStatus} instead of Submitted.");
     }
 }
 

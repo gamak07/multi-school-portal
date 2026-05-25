@@ -1,7 +1,5 @@
 using MultiPortalSchoolSys.Domain.Common;
 using MultiPortalSchoolSys.Domain.Entities.People;
-// using System.ComponentModel.DataAnnotations;
-// using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MultiPortalSchoolSys.Domain.Entities.Academic;
 
@@ -18,21 +16,29 @@ public class ClassRoom : BaseEntity
 
     public Teacher? FormTeacher { get; private set; }
 
-    // public ICollection<Student> Students { get; private set; } = new List<Student>();
-    public ICollection<Student> Students { get; private set; } = [];
-    // public ICollection<Subject> Subjects { get; private set; } = new List<Subject>();
-    public ICollection<Subject> Subjects { get; private set; } = [];
+    private readonly List<Student> _students = [];
+    public virtual IReadOnlyCollection<Student> Students => _students.AsReadOnly();
+
+    private readonly List<Subject> _subjects = [];
+    public virtual IReadOnlyCollection<Subject> Subjects => _subjects.AsReadOnly();
 
 
     public ClassRoom(string name, string arm, int? formTeacherId = null)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Class name cannot be empty.", nameof(name));
+        if (formTeacherId.HasValue && formTeacherId.Value <= 0)
+            throw new ArgumentException("Form Teacher ID must be a positive integer.", nameof(formTeacherId));
+
+        FormTeacherId = formTeacherId;
+        UpdateClassDetails(name, arm);
+    }
+
+    public void UpdateClassDetails(string name, string arm)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Class name cannot be empty.", nameof(name));
         if (string.IsNullOrWhiteSpace(arm)) throw new ArgumentException("Class arm cannot be empty.", nameof(arm));
 
-        Name = name;
-        Arm = arm;
-        FormTeacherId = formTeacherId;
+        Name = name.Trim();
+        Arm = arm.Trim().ToUpper();
     }
 
     public void AssignFormTeacher(int teacherId)
@@ -41,12 +47,26 @@ public class ClassRoom : BaseEntity
         FormTeacherId = teacherId;
     }
 
-    public void UpdateClassDetails(string name, string arm)
+    // Explicit domain verbs for roster movements
+    public void EnrollStudent(Student student)
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Class name cannot be empty.", nameof(name));
-        if (string.IsNullOrWhiteSpace(arm)) throw new ArgumentException("Class arm cannot be empty.", nameof(arm));
+        ArgumentNullException.ThrowIfNull(student);
+        if (!_students.Any(s => s.Id == student.Id))
+        {
+            _students.Add(student);
+        }
+    }
 
-        Name = name;
-        Arm = arm;
+    public void AllocateSubject(Subject subject)
+    {
+        ArgumentNullException.ThrowIfNull(subject);
+        if (!_subjects.Any(s => s.Id == subject.Id))
+        {
+            _subjects.Add(subject);
+            if (subject.ClassId != Id)
+            {
+                subject.UpdateClassroom(Id);
+            }
+        }
     }
 }

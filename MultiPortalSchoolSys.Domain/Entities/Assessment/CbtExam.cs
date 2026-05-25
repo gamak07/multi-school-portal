@@ -30,7 +30,7 @@ public class CbtExam : BaseEntity
     // Approval workflow
     public ExamApprovalStatus ApprovalStatus { get; private set; } = ExamApprovalStatus.Draft;
     public string? ApprovalRemarks { get; private set; }     // Admin feedback on rejection
-    public string? ApprovedByAdminId { get; private set; }
+    public int? ApprovedByAdminId { get; private set; }
     // [ForeignKey("ApprovedByAdminId")]
     // public ApplicationUser? ApprovedByAdmin { get; private set; }
     public DateTime? ApprovedAt { get; private set; }
@@ -42,14 +42,17 @@ public class CbtExam : BaseEntity
     public CbtExam(string title, int durationMinutes, DateTime startTime, DateTime endTime, decimal totalMarks, int subjectId, int createdByTeacherId)
     {
         UpdateCbtExam(title, durationMinutes, startTime, endTime, totalMarks, subjectId, createdByTeacherId);
-        ApprovalStatus = ExamApprovalStatus.Draft; // Fresh exams always start as Draft
+
     }
 
     public void UpdateCbtExam(string title, int durationMinutes, DateTime startTime, DateTime endTime, decimal totalMarks, int subjectId, int createdByTeacherId)
     {
         // Enforce: Cannot edit if it has already been approved
-        if (ApprovalStatus == ExamApprovalStatus.Approved) 
+        if (ApprovalStatus == ExamApprovalStatus.Approved)
             throw new InvalidOperationException("Cannot modify an exam once it has been approved by an administrator.");
+
+        if (ApprovalStatus == ExamApprovalStatus.Submitted)
+            throw new InvalidOperationException("Cannot modify an exam that is currently under review. Please wait for admin approval or rejection.");
 
         if (string.IsNullOrWhiteSpace(title)) throw new ArgumentException("Exam title cannot be empty.", nameof(title));
         if (durationMinutes <= 0) throw new ArgumentException("Duration must be a positive integer.", nameof(durationMinutes));
@@ -57,6 +60,14 @@ public class CbtExam : BaseEntity
         if (startTime >= endTime) throw new ArgumentException("Start time must be before end time.");
         if (subjectId <= 0) throw new ArgumentException("Invalid subject ID.", nameof(subjectId));
         if (createdByTeacherId <= 0) throw new ArgumentException("Invalid teacher ID.", nameof(createdByTeacherId));
+
+        if (ApprovalStatus == ExamApprovalStatus.Rejected)
+        {
+            ApprovalStatus = ExamApprovalStatus.Draft;
+            ApprovalRemarks = null;
+            ApprovedByAdminId = null;
+            ApprovedAt = null;
+        }
 
         Title = title;
         DurationMinutes = durationMinutes;
@@ -70,36 +81,54 @@ public class CbtExam : BaseEntity
         UpdateIsActiveStatus();
     }
 
-    public void ApproveExam(string adminId, string remarks)
+    public void SubmitForReview()
     {
-        if (string.IsNullOrWhiteSpace(adminId)) throw new ArgumentException("Admin ID is required.", nameof(adminId));
+        if (ApprovalStatus != ExamApprovalStatus.Draft)
+            throw new InvalidOperationException("Only draft examinations can be submitted for review.");
+
+        ApprovalStatus = ExamApprovalStatus.Submitted; // Safe, intentional state progression
+    }
+
+    public void ApproveExam(int adminId, string? remarks = null)
+    {
+        EnsurePendingReview();
+        if (adminId <= 0) throw new ArgumentException("Invalid admin ID.", nameof(adminId));
 
         ApprovedByAdminId = adminId;
         ApprovalRemarks = remarks;
         ApprovalStatus = ExamApprovalStatus.Approved; // Explicit state change
         ApprovedAt = DateTime.UtcNow;
-        
+        ApprovalRemarks = string.IsNullOrWhiteSpace(remarks) ? null : remarks.Trim();
+
         UpdateIsActiveStatus();
     }
 
-    public void RejectExam(string adminId, string remarks)
+    public void RejectExam(int adminId, string remarks)
     {
-        if (string.IsNullOrWhiteSpace(adminId)) throw new ArgumentException("Admin ID is required.", nameof(adminId));
+        EnsurePendingReview();
+        if (adminId <= 0) throw new ArgumentException("Invalid admin ID.", nameof(adminId));
         if (string.IsNullOrWhiteSpace(remarks)) throw new ArgumentException("Remarks are mandatory when rejecting an exam.", nameof(remarks));
 
         ApprovedByAdminId = adminId;
         ApprovalRemarks = remarks;
-        ApprovalStatus = ExamApprovalStatus.Draft; // Per blueprint: Rejection drops it back to Draft for teacher editing!
+        ApprovalStatus = ExamApprovalStatus.Rejected;
         ApprovedAt = DateTime.UtcNow;
-        
+        ApprovalRemarks = remarks.Trim();
+
         UpdateIsActiveStatus();
     }
 
     // Pure dynamic calculation using the current internal state! No parameter needed.
     public void UpdateIsActiveStatus()
     {
-        IsActive = ApprovalStatus == ExamApprovalStatus.Approved && 
-                   DateTime.UtcNow >= StartTime && 
+        IsActive = ApprovalStatus == ExamApprovalStatus.Approved &&
+                   DateTime.UtcNow >= StartTime &&
                    DateTime.UtcNow <= EndTime;
+    }
+
+    private void EnsurePendingReview()
+    {
+        if (ApprovalStatus != ExamApprovalStatus.Submitted)
+            throw new InvalidOperationException($"Action denied. This exam cannot be modified because its current status is {ApprovalStatus} instead of Submitted.");
     }
 }

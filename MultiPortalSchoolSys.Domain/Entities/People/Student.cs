@@ -1,35 +1,58 @@
 using MultiPortalSchoolSys.Domain.Common;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using MultiPortalSchoolSys.Domain.Entities.Academic;
 
 namespace MultiPortalSchoolSys.Domain.Entities.People;
 
 public class Student : BaseEntity
 {
-    // -----------------------------------------------------------------------
-    // UserId is now REQUIRED and assigned immediately at account creation.
-    // Admin provisions the account first — UserId is never null.
-    // UserStatus.PendingActivation replaces null as the activation signal.
-    // -----------------------------------------------------------------------
-    [Required]
-    public string UserId { get; set; } = string.Empty;
-    [ForeignKey("UserId")]
-    // public ApplicationUser? User { get; set; }
+    public int UserId { get; private set; }
 
-    [Required]
-    public int ParentId { get; set; }
-    [ForeignKey("ParentId")]
-    public Parent? Parent { get; set; }
+    public int ParentId { get; private set; }
+    public Parent? Parent { get; private set; }
 
-    public int? ClassRoomId { get; set; }
-    [ForeignKey("ClassRoomId")]
-    public Academic.ClassRoom? ClassRoom { get; set; }
+    public int? ClassRoomId { get; private set; }
+    public ClassRoom? ClassRoom { get; private set; }
 
-    [Required]
-    [MaxLength(20)]
-    public string AdmissionNo { get; set; } = string.Empty;
+    public string AdmissionNo { get; private set; } = string.Empty;
+    public DateTime DateOfBirth { get; private set; }
+    public DateTime EnrollmentDate { get; private set; } = DateTime.UtcNow;
 
-    public DateTime DateOfBirth { get; set; }
+    private Student() { }
 
-    public DateTime EnrollmentDate { get; set; } = DateTime.UtcNow;
+    public Student(int userId, int parentId, string admissionNo, DateTime dateOfBirth, DateTime? enrollmentDate = null)
+    {
+        if (userId <= 0) throw new ArgumentException("User ID must be a positive integer.", nameof(userId));
+        if (parentId <= 0) throw new ArgumentException("Parent ID must be a positive integer.", nameof(parentId));
+        
+        UserId = userId;
+        ParentId = parentId;
+        EnrollmentDate = enrollmentDate ?? DateTime.UtcNow;
+
+        UpdateProfile(admissionNo, dateOfBirth);
+    }
+
+ 
+    public void UpdateProfile(string admissionNo, DateTime dateOfBirth)
+    {
+        if (string.IsNullOrWhiteSpace(admissionNo)) throw new ArgumentException("Admission number cannot be empty.", nameof(admissionNo));
+        
+        // Guard Check: Verify basic calendar timeline sequence sanity
+        if (dateOfBirth.Date > DateTime.UtcNow.Date) 
+            throw new ArgumentException("Date of birth cannot be set in the future.", nameof(dateOfBirth));
+            
+        if (EnrollmentDate.Date < dateOfBirth.Date)
+            throw new ArgumentException("Enrollment date cannot be a timestamp prior to the student's birth date.");
+
+        AdmissionNo = admissionNo.Trim();
+        DateOfBirth = dateOfBirth.Date; // Strips raw time metrics for clean calendar consistency
+    }
+
+   
+    public void AssignToClassRoom(int? classRoomId)
+    {
+        if (classRoomId.HasValue && classRoomId.Value <= 0)
+            throw new ArgumentException("Invalid classroom ID specification.", nameof(classRoomId));
+
+        ClassRoomId = classRoomId;
+    }
 }
