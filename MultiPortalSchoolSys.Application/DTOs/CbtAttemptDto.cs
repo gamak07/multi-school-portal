@@ -7,5 +7,5 @@ public class CbtAttemptDto
     public int DurationMinutes { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
-    public List<CbtQuestionDto> Questions { get; set; } = new();
+    public List<CbtQuestionDto> Questions { get; set; } = [];
 }

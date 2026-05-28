@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MultiPortalSchoolSys.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+02bc0d9d1d85f76cd2f275ea107babcb490e8c4e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0cfb521306ad1d4b1613d6b4f5460df6e916b5bd")]
 [assembly: System.Reflection.AssemblyProductAttribute("MultiPortalSchoolSys.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MultiPortalSchoolSys.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
