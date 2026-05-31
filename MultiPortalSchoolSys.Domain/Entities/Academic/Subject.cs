@@ -5,26 +5,15 @@ namespace MultiPortalSchoolSys.Domain.Entities.Academic;
 
 public class Subject : BaseEntity
 {
-
-    private Subject() { }
-    // [Required]
-    // [MaxLength(100)]
     public string Name { get; private set; } = string.Empty;
-
-    // [Required]
-    // [MaxLength(20)]
     public string Code { get; private set; } = string.Empty;
-
     public bool IsActive { get; private set; } = true;
-
     public int? ClassId { get; private set; }
-    // [ForeignKey("ClassId")]
     public ClassRoom? ClassRoom { get; private set; }
-
     public int? TeacherId { get; private set; }
-    // [ForeignKey("TeacherId")]
     public Teacher? Teacher { get; private set; }
 
+    private Subject() { }
     public Subject(string name, string code, int? classId = null, int? teacherId = null)
     {
         UpdateSubject(name, code, classId, teacherId);

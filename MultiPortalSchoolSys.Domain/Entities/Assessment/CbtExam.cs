@@ -6,9 +6,7 @@ namespace MultiPortalSchoolSys.Domain.Entities.Assessment;
 
 public class CbtExam : BaseEntity
 {
-    private CbtExam() { }
-    // [Required]
-    // [MaxLength(200)]
+    private CbtExam() { } 
     public string Title { get; private set; } = string.Empty;
 
     public int SubjectId { get; private set; }

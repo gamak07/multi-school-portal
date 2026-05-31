@@ -8,20 +8,12 @@ public class StudentAttendance : BaseEntity
 {
 
     public int StudentId { get; private set; }
-    // [ForeignKey("StudentId")]
     public Student? Student { get; private set; }
 
     public int ClassId { get; private set; }
-    // [ForeignKey("ClassId")]
     public ClassRoom? ClassRoom { get; private set; }
-
-    // [Required]
     public DateTime Date { get; private set; }
-
-    // [Required]
-    // [MaxLength(20)]
     public AttendanceStatus Status { get; private set; }
-
     private StudentAttendance() { }
     public StudentAttendance(int studentId, int classId, DateTime date, AttendanceStatus status)
     {

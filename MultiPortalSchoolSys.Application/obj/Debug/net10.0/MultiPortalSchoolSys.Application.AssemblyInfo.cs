@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MultiPortalSchoolSys.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0cfb521306ad1d4b1613d6b4f5460df6e916b5bd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a3471bb4fcdff8f64704868f3acb6e06dee2b934")]
 [assembly: System.Reflection.AssemblyProductAttribute("MultiPortalSchoolSys.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MultiPortalSchoolSys.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

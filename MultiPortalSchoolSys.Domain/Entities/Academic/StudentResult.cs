@@ -6,7 +6,6 @@ namespace MultiPortalSchoolSys.Domain.Entities.Academic;
 
 public class StudentResult : BaseEntity
 {
-    private StudentResult() { }
 
     public int StudentId { get; private set; }
     public Student? Student { get; private set; }
@@ -29,6 +28,7 @@ public class StudentResult : BaseEntity
     public bool IsPublished { get; private set; } = false;
 
     // Removed grade, remark, and isPublished from the constructor inputs!
+    private StudentResult() { }
     public StudentResult(int studentId, int subjectId, int academicTermId, decimal caScore, decimal examScore, GradingSetting gradingSetting)
     {
         if (studentId <= 0) throw new ArgumentException("Invalid student ID.", nameof(studentId));

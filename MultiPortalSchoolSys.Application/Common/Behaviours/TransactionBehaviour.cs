@@ -1,5 +1,5 @@
 using MediatR;
-using MultiPortalSchoolSys.Application.Interfaces;
+using MultiPortalSchoolSys.Application.Common.Interfaces;
 
 namespace MultiPortalSchoolSys.Application.Common.Behaviours;
 
