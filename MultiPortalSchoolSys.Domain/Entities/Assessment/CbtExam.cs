@@ -6,7 +6,7 @@ namespace MultiPortalSchoolSys.Domain.Entities.Assessment;
 
 public class CbtExam : BaseEntity
 {
-    private CbtExam() { } 
+    private CbtExam() { }
     public string Title { get; private set; } = string.Empty;
 
     public int SubjectId { get; private set; }
@@ -35,7 +35,12 @@ public class CbtExam : BaseEntity
 
     public bool IsActive { get; private set; } = false;
 
-    public ICollection<CbtQuestion> Questions { get; private set; } = [];
+    // public ICollection<CbtQuestion> Questions { get; private set; } = [];
+
+    private readonly List<CbtQuestion> _questions = [];
+    public virtual IReadOnlyCollection<CbtQuestion> Questions
+        => _questions.AsReadOnly();
+
 
     public CbtExam(string title, int durationMinutes, DateTime startTime, DateTime endTime, decimal totalMarks, int subjectId, int createdByTeacherId)
     {
@@ -43,6 +48,12 @@ public class CbtExam : BaseEntity
 
     }
 
+    public void AddQuestion(CbtQuestion question)
+    {
+        ArgumentNullException.ThrowIfNull(question);
+        if (!_questions.Any(q => q.Id == question.Id))
+            _questions.Add(question);
+    }
     public void UpdateCbtExam(string title, int durationMinutes, DateTime startTime, DateTime endTime, decimal totalMarks, int subjectId, int createdByTeacherId)
     {
         // Enforce: Cannot edit if it has already been approved
@@ -93,7 +104,6 @@ public class CbtExam : BaseEntity
         if (adminId <= 0) throw new ArgumentException("Invalid admin ID.", nameof(adminId));
 
         ApprovedByAdminId = adminId;
-        ApprovalRemarks = remarks;
         ApprovalStatus = ExamApprovalStatus.Approved; // Explicit state change
         ApprovedAt = DateTime.UtcNow;
         ApprovalRemarks = string.IsNullOrWhiteSpace(remarks) ? null : remarks.Trim();

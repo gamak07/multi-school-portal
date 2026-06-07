@@ -21,12 +21,4 @@ public class PaginatedList<T>
         PageNumber = pageNumber;
         PageSize   = pageSize;
     }
-
-    public static PaginatedList<T> Create(IEnumerable<T> source, int pageNumber, int pageSize)
-    {
-        var list       = source.ToList();
-        var totalCount = list.Count;
-        var items      = list.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
-        return new PaginatedList<T>(items, totalCount, pageNumber, pageSize);
-    }
 }

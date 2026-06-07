@@ -20,7 +20,10 @@ public class TheoryExam : BaseEntity
     public string? ApprovalRemarks { get; private set; }
     public int? ApprovedByAdminId { get; private set; } // Consistently matches numeric tracking ids
     public DateTime? ApprovedAt { get; private set; }
-    public ICollection<TheoryQuestion> Questions { get; private set; } = [];
+    // public ICollection<TheoryQuestion> Questions { get; private set; } = [];
+
+    private readonly List<TheoryQuestion> _questions = [];
+    public virtual IReadOnlyCollection<TheoryQuestion> Questions => _questions.AsReadOnly();
     private TheoryExam() { }
     public TheoryExam(string title, int subjectId, int createdByTeacherId, int academicTermId, decimal totalMarks)
     {
@@ -57,6 +60,13 @@ public class TheoryExam : BaseEntity
         TotalMarks = totalMarks;
     }
 
+
+    public void AddQuestion(TheoryQuestion question)
+    {
+        ArgumentNullException.ThrowIfNull(question);
+        if (!_questions.Any(q => q.Id == question.Id))
+            _questions.Add(question);
+    }
     // FIXED: Parameter types aligned to int and remarks made truly optional for approvals
     public void ApproveExam(int adminId, string? remarks = null)
     {
@@ -82,6 +92,14 @@ public class TheoryExam : BaseEntity
         ApprovedByAdminId = adminId;
         ApprovedAt = DateTime.UtcNow;
         ApprovalRemarks = remarks.Trim();
+    }
+
+    public void SubmitForReview()
+    {
+        if (ApprovalStatus != ExamApprovalStatus.Draft)
+            throw new InvalidOperationException(
+                "Only draft exams can be submitted for review.");
+        ApprovalStatus = ExamApprovalStatus.Submitted;
     }
 
     private void EnsurePendingReview()

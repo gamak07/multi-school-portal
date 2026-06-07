@@ -65,27 +65,35 @@ public class PrintableExam : BaseEntity
     public void ApproveExam(int adminId, string? remarks = null)
     {
         EnsurePendingReview();
-        
+
         if (adminId <= 0) throw new ArgumentException("Invalid admin ID.", nameof(adminId));
 
         ApprovalStatus = ExamApprovalStatus.Approved;
         ApprovedByAdminId = adminId;
-        ApprovalRemarks = remarks;
+        ApprovalRemarks = string.IsNullOrWhiteSpace(remarks) ? null : remarks.Trim();
         ApprovedAt = DateTime.UtcNow;
     }
 
     public void RejectExam(int adminId, string remarks)
     {
         EnsurePendingReview();
-       
+
         if (adminId <= 0) throw new ArgumentException("Invalid admin ID.", nameof(adminId));
 
         if (string.IsNullOrWhiteSpace(remarks)) throw new ArgumentException("Remarks cannot be empty when rejecting an exam.", nameof(remarks));
 
         ApprovalStatus = ExamApprovalStatus.Rejected;
         ApprovedByAdminId = adminId;
-        ApprovalRemarks = remarks;
+        ApprovalRemarks = string.IsNullOrWhiteSpace(remarks) ? null : remarks.Trim();
         ApprovedAt = DateTime.UtcNow;
+    }
+
+    public void SubmitForReview()
+    {
+        if (ApprovalStatus != ExamApprovalStatus.Draft)
+            throw new InvalidOperationException(
+                "Only draft exams can be submitted for review.");
+        ApprovalStatus = ExamApprovalStatus.Submitted;
     }
 
     private void EnsurePendingReview()

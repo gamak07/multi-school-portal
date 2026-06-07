@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -19,9 +20,15 @@ public class LoggingBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest,
         CancellationToken cancellationToken)
     {
         var requestName = typeof(TRequest).Name;
-        _logger.LogInformation("Multiportal school request:handled {name}", requestName);
+        // _logger.LogInformation("Multiportal school request:handled {name}", requestName);
+        // var response = await next();
+        // _logger.LogInformation("Multiportal school request:handled {name}", requestName);
+
+        var sw = Stopwatch.StartNew();
+        _logger.LogInformation("Handling request {name}", requestName);
         var response = await next();
-        _logger.LogInformation("Multiportal school request:handled {name}", requestName);
+        sw.Stop();
+        _logger.LogInformation("Handled request {name} in {ms}ms", requestName, sw.ElapsedMilliseconds);
         return response;
     }
 }
