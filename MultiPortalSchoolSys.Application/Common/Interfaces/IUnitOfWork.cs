@@ -37,5 +37,5 @@ public interface IUnitOfWork : IDisposable
     IParentRepository Parents { get; }
     IStudentRepository Students { get; }
     ITeacherRepository Teachers { get; }
-    Task<int> SaveChangesAsync();
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
